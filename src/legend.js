@@ -259,8 +259,17 @@ c3_chart_internal_fn.updateLegend = function (targetIds, options, transitions) {
                 $$.api.revert();
             }
         });
+
+    function legendFormat(id){
+        var dataName = config.data_names[id], formatName;
+        if(isFunction(config.legend_format)){
+            formatName = config.legend_format(id, dataName);
+        }
+        return formatName || dataName || id;
+    }
+
     l.append('text')
-        .text(function (id) { return isDefined(config.data_names[id]) ? config.data_names[id] : id; })
+        .text(legendFormat)
         .each(function (id, i) { updatePositions(this, id, i); })
         .style("pointer-events", "none")
         .attr('x', $$.isLegendRight || $$.isLegendInset ? xForLegendText : -200)
@@ -290,7 +299,7 @@ c3_chart_internal_fn.updateLegend = function (targetIds, options, transitions) {
 
     texts = $$.legend.selectAll('text')
         .data(targetIds)
-        .text(function (id) { return isDefined(config.data_names[id]) ? config.data_names[id] : id; }) // MEMO: needed for update
+        .text(legendFormat) // MEMO: needed for update
         .each(function (id, i) { updatePositions(this, id, i); });
     (withTransition ? texts.transition() : texts)
         .attr('x', xForLegendText)
